@@ -1,0 +1,20 @@
+#!/bin/bash
+mkdir -pv bin
+
+echo "Writing shebang..."
+if echo "#!/usr/bin/env node" > bin/encdec; then
+	echo "[1/2] File created"
+else
+	echo "Failed - Failed to write executable" >&2
+fi
+echo "Writing executable..."
+if cat index.js >> bin/encdec; then
+	echo "[2/2] File created"
+else
+	echo "Failed - Failed to write executable" >&2
+fi
+
+echo "Changing permissions..."
+chmod a+x bin/encdec
+
+echo "Success!"

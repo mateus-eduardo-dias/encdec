@@ -2,6 +2,11 @@ import crypto from 'crypto'
 
 const args = process.argv.slice(2)
 
+if (args.length == 0) {
+	console.log("Use --help")
+	process.exit(0)
+}
+
 const key = crypto.randomBytes(32)
 const iv = crypto.randomBytes(16)
 
