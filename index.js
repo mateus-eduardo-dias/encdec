@@ -22,5 +22,13 @@ encrypted += cipher.final('hex')
 
 const authTag = cipher.getAuthTag()
 
+let decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
+decipher.setAuthTag(authTag)
+decipher.setAAD(associatedData)
+
+let decrypted = decipher.update(encrypted, 'hex', 'utf8')
+decrypted += decipher.final('utf8')
+
 console.log('Encrypted: ', encrypted)
 console.log('Auth Tag: ', authTag.toString('hex'))
+console.log('Decrypted: ', decrypted)
