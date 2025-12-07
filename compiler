@@ -17,4 +17,7 @@ fi
 echo "Changing permissions..."
 chmod a+x bin/encdec
 
+echo "Adding to /usr/local/bin ..."
+cp bin/encdec /usr/local/bin/
+
 echo "Success!"
