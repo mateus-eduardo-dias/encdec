@@ -9,7 +9,7 @@ if (args.length == 0) {
 }
 
 const flags_list = ['d']
-const parameters_list = ['k', 'kf', 'iv', 'ivf', 't']
+const parameters_list = ['k', 'kf', 'iv', 'ivf', 'i', 'if', 'o', 'of', 'at', 'atf']
 const parameters = new Map()
 const flags = new Map()
 
@@ -43,7 +43,6 @@ if (!text_formats.includes(key_format)) {
 	console.error(`Error: Parameter --kf is invalid: ${key_format}`)
 	process.exit(2)
 }
-
 const key =  parameters.has('k') ? Buffer.from(parameters.get('k'), key_format) : crypto.randomBytes(32)
 if (key.length != 32) {
 	console.error(`Error: Key size is invalid: ${key.length}b (expected: 32b)`)
@@ -56,48 +55,58 @@ if (!text_formats.includes(iv_format)) {
 	console.error(`Error: Parameter --ivf is invalid: ${iv_format}`)
 	process.exit(2)
 }
-
 const iv = parameters.has('iv') ? Buffer.from(parameters.get('iv'), iv_format) : crypto.randomBytes(12)
 if (iv.length != 12) {
 	console.error(`Error: IV size is invalid: ${iv.length}b (expected: 12b)`)
 	process.exit(2)
 }
 
-const plaintext_format = parameters.has('tf') ? parameters.get('tf') : 'utf8'
-if (!text_formats.includes(plaintext_format)) {
-	console.error(`Error: Parameter --tf is invalid: ${plaintext_format}`)
+const input_format = parameters.has('if') ? parameters.get('if') : flags.has('d') ? 'hex' : 'utf8'
+if (!text_formats.includes(input_format)) {
+	console.error(`Error: Parameter --if is invalid: ${input_format}`)
+	process.exit(2)
+}
+const input = parameters.has('i') ? parameters.get('i') : 0
+if (input === 0) {
+	console.error(`Error: Input text not found (Use --i TEXT)`)
 	process.exit(2)
 }
 
-const plaintext = parameters.has('t') ? parameters.get('t') : 0
-if (plaintext === 0) {
-	console.error(`Error: Parameter --t wasn't found, text is invalid`)
-	process.exit(2)
-}
-
-const output_format = parameter.has('of') ? parameters.get('of') : 'hex'
+const output_format = parameters.has('of') ? parameters.get('of') : flags.has('d') ? 'utf8' : 'hex'
 if (!text_formats.includes(output_format)) {
 	console.error(`Error: Parameter --of is invalid: ${output_format}`)
+	process.exit(2)
+}
+
+const authTag_format = parameters.has('atf') ? parameters.get('atf') : 'hex'
+if (!text_formats.includes(authTag_format)) {
+	console.error(`Error: Parameter --atf is invalid: ${authTag_format}`)
 	process.exit(2)
 }
 
 if (!flags.has('d')) { // Encryption
 	const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
 
-	let encrypted = cipher.update(plaintext, plaintext_format === 0 ? 'utf8' : plaintext_format, 'hex')
-	encrypted += cipher.final('hex')
+	let encrypted = cipher.update(input, input_format, output_format)
+	encrypted += cipher.final(output_format)
 
 	const authTag = cipher.getAuthTag()
-	console.log('Encrypted: ', encrypted)
-	console.log('AuthTag: ', authTag.toString('hex'))
-	console.log('IV: ', iv.toString('hex'))
-	console.log('Key: ', key.toString('hex'))
+	console.log('Encrypted: ', encrypted, ` (${output_format})`)
+	console.log('AuthTag: ', authTag.toString(authTag_format), ` (${authTag_format})`)
+	console.log('IV: ', iv.toString(iv_format), ` (${iv_format})`)
+	console.log('Key: ', key.toString(key_format), ` (${key_format})`)
 } else { // Decryption
+	const authTag = parameters.has('at') ? Buffer.from(parameters.get('at'), authTag_format) : 0
+	if (authTag === 0 || authTag.length != 16) {
+		console.error(`Error: Parameter --at is invalid or doesn't have 16 bytes`)
+		process.exit(2)
+	}
+	
 	let decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
 	decipher.setAuthTag(authTag)
 
-	let decrypted = decipher.update(encrypted, 'hex', 'utf8')
-	decrypted += decipher.final('utf8')
-	console.log('Decrypted: ', decrypted)
+	let decrypted = decipher.update(input, input_format, output_format)
+	decrypted += decipher.final(output_format)
+	console.log('Decrypted: ', decrypted, ` (${output_format})`)
 }
 
