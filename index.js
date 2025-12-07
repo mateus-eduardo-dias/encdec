@@ -9,7 +9,7 @@ if (args.length == 0) {
 }
 
 const flags_list = ['d']
-const parameters_list = ['k', 'kf', 'iv', 'ivf', 'i', 'if', 'o', 'of', 'at', 'atf']
+const parameters_list = ['k', 'kf', 'iv', 'ivf', 'i', 'if', 'at', 'atf', 'of']
 const parameters = new Map()
 const flags = new Map()
 
