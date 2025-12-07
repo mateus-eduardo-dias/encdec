@@ -43,7 +43,8 @@ if (!text_formats.includes(key_format)) {
 	console.error(`Error: Parameter --kf is invalid: ${key_format}`)
 	process.exit(2)
 }
-const key =  parameters.has('k') ? Buffer.from(parameters.get('k'), key_format) : crypto.randomBytes(32)
+const key_provided = parameters.has('k')
+const key =  key_provided ? Buffer.from(parameters.get('k'), key_format) : crypto.randomBytes(32)
 if (key.length != 32) {
 	console.error(`Error: Key size is invalid: ${key.length}b (expected: 32b)`)
 	process.exit(2)
@@ -55,7 +56,8 @@ if (!text_formats.includes(iv_format)) {
 	console.error(`Error: Parameter --ivf is invalid: ${iv_format}`)
 	process.exit(2)
 }
-const iv = parameters.has('iv') ? Buffer.from(parameters.get('iv'), iv_format) : crypto.randomBytes(12)
+const iv_provided = parameters.has('iv')
+const iv = iv_provided ? Buffer.from(parameters.get('iv'), iv_format) : crypto.randomBytes(12)
 if (iv.length != 12) {
 	console.error(`Error: IV size is invalid: ${iv.length}b (expected: 12b)`)
 	process.exit(2)
@@ -99,6 +101,9 @@ if (!flags.has('d')) { // Encryption
 	const authTag = parameters.has('at') ? Buffer.from(parameters.get('at'), authTag_format) : 0
 	if (authTag === 0 || authTag.length != 16) {
 		console.error(`Error: Parameter --at is invalid or doesn't have 16 bytes`)
+		process.exit(2)
+	} else if (!key_provided || !iv_provided) {
+		console.error(`Error: Missing key or iv for decryption`)
 		process.exit(2)
 	}
 	
