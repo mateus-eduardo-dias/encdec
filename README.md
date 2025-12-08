@@ -19,23 +19,15 @@ This tool can be installed manually or by using Docker.
 
 2. Download the [latest release](https://github.com/mateus-eduardo-dias/encdec/releases) of ENCDEC<br>
 
-	If using Linux:
+3. Move the executable to /usr/local/bin
+```bash
+sudo cp ./encdec /usr/local/bin/
+```
 
-	3. Run compiler file
-	```bash
-	sudo ./compiler
-	```
-	4. Run the executable
-	```bash
-	encdec [arguments]
-	```
-
-	Else (Windows or MacOS):
-	
-	3. Run index.js with Node (on the directory)
-	```bash
-	node index.js [arguments]
-	```
+4. Run the executable
+```bash
+encdec [arguments]
+```
 
 #### Using Docker (Recommended for Windows or MacOS)
 
