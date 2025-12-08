@@ -4,7 +4,7 @@ import crypto from 'crypto'
 const args = process.argv.slice(2)
 
 if (args.length == 0) {
-	console.log("Use --help")
+	console.log("Check GitHub for usage guide (--help coming soon)")
 	process.exit(0)
 }
 
